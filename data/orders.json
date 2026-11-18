@@ -1,0 +1,24 @@
+[
+  {
+    "id": "BAMO-859630",
+    "orderNumber": "BAMO-859630",
+    "customerName": "MOHAMED SARI",
+    "customerPhone": "0675775884",
+    "customerEmail": "mohamedsari.dev@gmail.com",
+    "city": "Marrakech",
+    "shippingAddress": "DB LAMAALEM AYAD NR 35 SYBA MARRAKECH",
+    "status": "PENDING",
+    "paymentMethod": "COD",
+    "notes": "DB LAMAALEM AYAD NR 35 SYBA MARRAKECH",
+    "totalMAD": 525,
+    "createdAt": "2026-11-17T20:20:10.476Z",
+    "items": [
+      {
+        "productName": "BAMO Verona",
+        "variantLabel": "50 ml Extrait de Parfum",
+        "quantity": 1,
+        "priceMAD": 490
+      }
+    ]
+  }
+]

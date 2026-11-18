@@ -1,0 +1,192 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PACKED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  passwordHash String?
+  name         String?
+  phone        String?
+  role         Role       @default(CUSTOMER)
+  favorites    Favorite[]
+  orders       Order[]
+  addresses    Address[]
+  reviews      Review[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Address {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName   String
+  phone      String
+  street     String
+  city       String
+  postalCode String
+  country    String   @default("MA")
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  nameEn      String
+  nameFr      String
+  nameAr      String
+  description String?
+  image       String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  slug        String           @unique
+  nameEn      String
+  nameFr      String
+  nameAr      String
+  categoryTag String           // e.g. "01 ILLUMINATE"
+  description String
+  categoryId  String?
+  category    Category?        @relation(fields: [categoryId], references: [id])
+  status      ProductStatus    @default(ACTIVE)
+  images      String           // JSON stringified array of image URLs
+  variants    ProductVariant[]
+  favorites   Favorite[]
+  reviews     Review[]
+  orderItems  OrderItem[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model ProductVariant {
+  id         String      @id @default(cuid())
+  productId  String
+  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  sku        String      @unique
+  label      String      // e.g. "30 ml", "50 ml", "100 ml"
+  priceCents Int         // Whole cents in base currency (e.g. MAD cents or EUR cents)
+  stock      Int         @default(0)
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+}
+
+model Favorite {
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, productId])
+}
+
+model Order {
+  id                    String      @id @default(cuid())
+  orderNumber           String      @unique
+  userId                String?
+  user                  User?       @relation(fields: [userId], references: [id])
+  customerEmail         String?
+  customerName          String
+  customerPhone         String
+  shippingAddress       String      // Formatted address string or street
+  city                  String      @default("Casablanca")
+  status                OrderStatus @default(PENDING)
+  paymentMethod         String      @default("COD") // "COD" (Cash on Delivery)
+  notes                 String?
+  totalCents            Int
+  currency              String      @default("MAD")
+  stripePaymentIntentId String?     @unique
+  trackingNumber        String?
+  items                 OrderItem[]
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+}
+
+model OrderItem {
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id])
+  variantId        String
+  variant          ProductVariant @relation(fields: [variantId], references: [id])
+  productNameSaved String
+  variantLabel     String
+  unitPriceCents   Int
+  quantity         Int
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id])
+  authorName String
+  rating     Int      // 1 to 5
+  title      String?
+  comment    String
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Coupon {
+  id             String    @id @default(cuid())
+  code           String    @unique
+  discountPct    Int?      // e.g. 10 for 10% off
+  discountCents  Int?      // Fixed amount off
+  minOrderCents  Int?      @default(0)
+  expiresAt      DateTime?
+  maxRedemptions Int?
+  redeemedCount  Int       @default(0)
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String   // e.g. "PRODUCT_CREATED", "ORDER_STATUS_CHANGED"
+  entity    String   // e.g. "Order", "Product"
+  entityId  String
+  details   String?  // JSON details
+  createdAt DateTime @default(now())
+}
+
+model Setting {
+  key       String   @id
+  value     String   // JSON string
+  updatedAt DateTime @updatedAt
+}
