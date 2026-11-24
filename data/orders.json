@@ -1,5 +1,27 @@
 [
   {
+    "id": "BAMO-128800",
+    "orderNumber": "BAMO-128800",
+    "customerName": "SARI سري",
+    "customerPhone": "0675775884",
+    "customerEmail": "mohamedsari8540@gmail.com",
+    "city": "Marrakech",
+    "shippingAddress": "DB LAMAALEM AYD NR 35 SYBA MARRAKECH",
+    "status": "PENDING",
+    "paymentMethod": "COD",
+    "notes": "DB LAMAALEM AYD NR 35 SYBA MARRAKECH",
+    "totalMAD": 1040,
+    "createdAt": "2026-11-19T19:37:37.723Z",
+    "items": [
+      {
+        "productName": "BAMO Divine",
+        "variantLabel": "50 ml Extrait de Parfum",
+        "quantity": 2,
+        "priceMAD": 520
+      }
+    ]
+  },
+  {
     "id": "BAMO-859630",
     "orderNumber": "BAMO-859630",
     "customerName": "MOHAMED SARI",
